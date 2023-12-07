@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener("click", agregarAlCarrito);
   });
 
+  if (localStorage.getItem("carrito")) {
+    carrito = JSON.parse(localStorage.getItem("carrito"));
+    actualizarCarrito();
+  }
+  
   // Función para agregar los productos al carrito
   function agregarAlCarrito(event) {
     const productoElement = event.target.closest(".producto");
@@ -37,12 +42,16 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+    // Guardar carrito en localStorage después de cada actualización
+    localStorage.setItem("carrito", JSON.stringify(carrito));
     actualizarCarrito();
   }
 
   // Función para eliminar los productos del carrito
   function eliminarDelCarrito(productoId) {
     carrito = carrito.filter(item => item.id !== productoId);
+    // Guardar carrito en localStorage después de cada actualización
+    localStorage.setItem("carrito", JSON.stringify(carrito));
     actualizarCarrito();
   }
 
@@ -61,12 +70,20 @@ document.addEventListener("DOMContentLoaded", function () {
           <span>${item.nombre} x ${item.cantidad}</span>
           <span>$${subtotal.toFixed(2)}</span>
           <button class="eliminar btn btn-primary" onclick="eliminarDelCarrito(${item.id})">Eliminar</button>
-        </div>
-      `;
+        </div>`;
 
       carritoElement.innerHTML += productoHTML;
     });
 
     totalElement.textContent = `Total: $${total.toFixed(2)}`;
+
+    // Obtener los botones eliminar después de actualizar el carrito
+    const botonesEliminar = document.querySelectorAll('.eliminar');
+    botonesEliminar.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const productoId = parseInt(btn.dataset.id);
+        eliminarDelCarrito(productoId);
+      });
+    });
   }
 });
